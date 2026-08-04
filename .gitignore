@@ -1,0 +1,16 @@
+# React
+todo_frontend/node_modules/
+todo_frontend/dist/
+
+# ASP.NET
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+
+# VS Code
+.vscode/
+
+# Rider
+.idea/

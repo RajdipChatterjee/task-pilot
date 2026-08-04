@@ -1,0 +1,9 @@
+namespace todo_backend.Configurations
+{
+    public class MongoDbSettings
+    {
+        public string ConnectionString { get; set; } = String.Empty;
+        public string DatabaseName { get; set; } = String.Empty;
+        public string TodoCollection { get; set; } = String.Empty;
+    }
+}
