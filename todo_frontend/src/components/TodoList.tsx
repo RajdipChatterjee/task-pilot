@@ -2,14 +2,21 @@ import type { Todo } from "../models/Todo";
 
 import { Card, CardHeader, Text, Button } from "@fluentui/react-components";
 
-import * as todoApi from "../api/todoApi";
-
 interface TodoListProps {
-    todos: Todo[],
-    loadTodos: () => Promise<void>
+  todos: Todo[];
+  toggleStatus: (id: string) => Promise<void>;
+  deleteTodo: (id: string) => Promise<void>;
 }
 
-function TodoList({todos, loadTodos}: TodoListProps) {
+function TodoList({ todos, toggleStatus, deleteTodo }: TodoListProps) {
+  async function handleDeleteClick(id: string) {
+    await deleteTodo(id);
+  }
+
+  async function handleToggleStatus(id: string) {
+    await toggleStatus(id);
+  }
+
   return (
     <div>
       {todos.map((todo) => (
@@ -37,24 +44,14 @@ function TodoList({todos, loadTodos}: TodoListProps) {
           >
             <Button
               appearance="primary"
-              onClick={async () => {
-                await todoApi.updateTodo(todo.id, {
-                  ...todo,
-                  isCompleted: !todo.isCompleted,
-                });
-
-                loadTodos();
-              }}
+              onClick={async () => handleToggleStatus(todo.id)}
             >
               {todo.isCompleted ? "Mark Pending" : "Mark Complete"}
             </Button>
+
             <Button
               appearance="secondary"
-              onClick={async () => {
-                await todoApi.deleteTodo(todo.id);
-
-                loadTodos();
-              }}
+              onClick={async () => handleDeleteClick(todo.id)}
             >
               Delete
             </Button>

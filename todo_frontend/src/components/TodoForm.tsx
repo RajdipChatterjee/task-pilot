@@ -21,7 +21,7 @@ function TodoForm({ handleCreateTodo }: TodoFormProps) {
   const [description, setDescription] = useState("");
 
   async function handleSubmit() {
-    
+
     if (!title.trim()) return;
 
     const todo: CreateTodo = {
@@ -69,7 +69,6 @@ function TodoForm({ handleCreateTodo }: TodoFormProps) {
           />
         </Field>
 
-        {/* <Button appearance="primary">Add Todo</Button> */}
       </div>
       <div style={{ marginTop: 20 }}>
         <Button appearance="primary" onClick={handleSubmit}>
