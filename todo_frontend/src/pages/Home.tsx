@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Button,
@@ -30,16 +29,16 @@ function Home() {
     setTitle("");
     setDescription("");
 
-    alert("Saved!");
+    await loadTodos();
+  }
+
+  async function loadTodos() {
+    const data = await todoApi.getTodos();
+    setTodos(data);
   }
 
   useEffect(() => {
-    async function fetchTodos() {
-      const data = await todoApi.getTodos();
-      setTodos(data);
-    }
-
-    fetchTodos();
+    void loadTodos();
   }, []);
 
   return (
@@ -70,8 +69,8 @@ function Home() {
         >
           <Field
             label="Title"
-            validationState="warning"
-            validationMessage="Title is required"
+            validationState={title ? "none" : "warning"}
+            validationMessage={title ? "" : "Title is required"}
           >
             <Input value={title} onChange={(_, data) => setTitle(data.value)} />
           </Field>
@@ -92,13 +91,65 @@ function Home() {
         </div>
       </Card>
       {todos.map((todo) => (
-        <Card key={todo.id} style={{ marginTop: 16 }}>
+        <Card key={todo.id} style={{ marginTop: 16, padding: 16 }}>
           <CardHeader
             header={<Text weight="semibold">{todo.title}</Text>}
-            description={todo.description}
+            description={
+              <div>
+                <Text>{todo.description}</Text>
+
+                <br />
+
+                <Text size={200}>
+                  {todo.isCompleted ? "✅ Completed" : "⏳ Pending"}
+                </Text>
+              </div>
+            }
           />
+          <div
+            style={{
+              marginTop: 16,
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Button
+              appearance="primary"
+              onClick={async () => {
+                await todoApi.updateTodo(todo.id, {
+                  ...todo,
+                  isCompleted: !todo.isCompleted,
+                });
+
+                await loadTodos();
+              }}
+            >
+              {todo.isCompleted ? "Mark Pending" : "Mark Complete"}
+            </Button>
+            <Button
+              appearance="secondary"
+              onClick={async () => {
+                await todoApi.deleteTodo(todo.id);
+                await loadTodos();
+              }}
+            >
+              Delete
+            </Button>
+          </div>
         </Card>
       ))}
+      {todos.length === 0 && (
+        <Text
+          italic
+          style={{
+            marginTop: 24,
+            display: "block",
+            textAlign: "center",
+          }}
+        >
+          No todos yet.
+        </Text>
+      )}
     </div>
   );
 }
