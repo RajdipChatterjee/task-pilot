@@ -1,38 +1,51 @@
-import { Field, Input, Textarea, Button } from "@fluentui/react-components";
-import { useState, useEffect } from "react";
-import type { Todo, CreateTodo } from "../models/Todo";
-import * as todoApi from "../api/todoApi";
+import { useState } from "react";
 
-function TodoForm() {
+import {
+  Button,
+  Card,
+  CardHeader,
+  Field,
+  Input,
+  Text,
+  Textarea,
+} from "@fluentui/react-components";
+
+import type { CreateTodo } from "../models/Todo";
+
+interface TodoFormProps {
+  handleCreateTodo: (todo: CreateTodo) => Promise<void>;
+}
+
+function TodoForm({ handleCreateTodo }: TodoFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [todos, setTodos] = useState<Todo[]>([]);
 
-  async function handleAddTodo() {
+  async function handleSubmit() {
+    
+    if (!title.trim()) return;
+
     const todo: CreateTodo = {
-      title,
-      description,
+      title: title,
+      description: description,
     };
 
-    await todoApi.createTodo(todo);
+    await handleCreateTodo(todo);
 
     setTitle("");
     setDescription("");
-
-    await loadTodos();
   }
-
-  async function loadTodos() {
-    const data = await todoApi.getTodos();
-    setTodos(data);
-  }
-
-  useEffect(() => {
-    void loadTodos();
-  }, []);
 
   return (
-    <div>
+    <Card>
+      <CardHeader
+        header={
+          <Text size={700} weight="semibold">
+            Todo Application
+          </Text>
+        }
+        description="Built with React + ASP.NET Core"
+      />
+
       <div
         style={{
           display: "flex",
@@ -56,13 +69,14 @@ function TodoForm() {
           />
         </Field>
 
+        {/* <Button appearance="primary">Add Todo</Button> */}
       </div>
       <div style={{ marginTop: 20 }}>
-        <Button appearance="primary" onClick={handleAddTodo}>
+        <Button appearance="primary" onClick={handleSubmit}>
           Add Todo
         </Button>
       </div>
-    </div>
+    </Card>
   );
 }
 
