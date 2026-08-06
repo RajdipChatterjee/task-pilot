@@ -14,7 +14,6 @@ interface TodoCardProps {
 }
 
 function TodoCard({todo, handleToggleStatus, handleDeleteClick}: TodoCardProps) {
-
   return (
     <Card key={todo.id} style={{ marginTop: 16, padding: 16 }}>
       <CardHeader

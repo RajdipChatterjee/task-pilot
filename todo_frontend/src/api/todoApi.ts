@@ -1,22 +1,26 @@
 import api from "./axios";
-import type { Todo, CreateTodo } from "../models/Todo";
+import type { ApiResponse, CreateTodo, Todo } from "../models/Todo";
 
 export async function createTodo(todo: CreateTodo) {
-    const response = await api.post<Todo>("/todo", todo);
-    return response.data;
+    const response = await api.post<ApiResponse<Todo>>("/todo", todo);
+
+    if (!response.data.data)
+        throw new Error(response.data.message);
+
+    return response.data.data;
 }
 
 export async function getTodos() {
-    const response = await api.get<Todo[]>("/todo");
-    return response.data;
+    const response = await api.get<ApiResponse<Todo[]>>("/todo");
+    return response.data.data ?? [];
 }
 
 export async function getTodo(id: string) {
-    const response = await api.get<Todo>(`/todo/${id}`);
-    return response.data;
+    const response = await api.get<ApiResponse<Todo>>(`/todo/${id}`);
+    return response.data.data;
 }
 
-export async function updateTodo(id: string, todo: Todo) {
+export async function updateTodo(id: string, todo: CreateTodo) {
     await api.put(`/todo/${id}`, todo);
 }
 

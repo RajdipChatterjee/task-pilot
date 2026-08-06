@@ -42,7 +42,7 @@ public class TodoService : ITodoService
         };
     }
 
-    public async Task CreateAsync(CreateTodoDto dto)
+    public async Task<TodoResponseDto> CreateAsync(CreateTodoDto dto)
     {
         var todo = new Todo
         {
@@ -52,6 +52,14 @@ public class TodoService : ITodoService
         };
 
         await _repository.CreateAsync(todo);
+
+        return new TodoResponseDto
+        {
+            Id = todo.Id,
+            Title = todo.Title,
+            Description = todo.Description,
+            IsCompleted = todo.IsCompleted
+        };
     }
 
     public async Task UpdateAsync(string id, UpdateTodoDto dto)
