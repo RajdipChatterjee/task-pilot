@@ -11,9 +11,13 @@ import {
   DataGridCell,
   type TableColumnId,
   type DataGridCellFocusMode,
+  Badge,
+  Button,
 } from "@fluentui/react-components";
-import { EditRegular, DeleteRegular } from "@fluentui/react-icons";
+import { DeleteRegular } from "@fluentui/react-icons";
 import type { Todo } from "../models/Todo";
+import TaskDialog from "./TaskDialog";
+import { DialogMode } from "../enums/DialogMode";
 
 interface TodoListProps {
   todos: Todo[];
@@ -23,13 +27,11 @@ interface TodoListProps {
 
 const useClasses = makeStyles({
   container: {
-    display: "flex",
-    gap: "5px",
-    fontSize: "25px",
+    fontSize: "20px",
   },
 });
 
-function TodoList({ todos, toggleStatus, deleteTodo }: TodoListProps) {
+function TodoList({ todos, deleteTodo }: TodoListProps) {
   const classes = useClasses();
 
   const columns: TableColumnDefinition<Todo>[] = [
@@ -67,22 +69,14 @@ function TodoList({ todos, toggleStatus, deleteTodo }: TodoListProps) {
       },
       renderCell: (item) => {
         return (
-          <TableCellLayout>
+          <Badge
+            appearance="tint"
+            size="extra-large"
+            color={item.isCompleted ? "brand" : "warning"}
+          >
             {item.isCompleted ? "Completed" : "Pending"}
-          </TableCellLayout>
+          </Badge>
         );
-      },
-    }),
-    createTableColumn<Todo>({
-      columnId: "Created At",
-      compare: (a, b) => {
-        return a.title.localeCompare(b.title);
-      },
-      renderHeaderCell: () => {
-        return "Task";
-      },
-      renderCell: (item) => {
-        return <TableCellLayout>{item.title}</TableCellLayout>;
       },
     }),
     createTableColumn<Todo>({
@@ -96,14 +90,14 @@ function TodoList({ todos, toggleStatus, deleteTodo }: TodoListProps) {
       renderCell: (item) => {
         return (
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <EditRegular
-              className={classes.container}
-              onClick={() => handleToggleStatus(item.id)}
-            />
-            <DeleteRegular
-              className={classes.container}
+            <TaskDialog mode={DialogMode.Edit} todo={item}/>
+            <Button
               onClick={() => handleDeleteClick(item.id)}
-            />
+            >
+              <DeleteRegular
+                className={classes.container}
+              />
+            </Button>
           </div>
         );
       },
@@ -112,10 +106,6 @@ function TodoList({ todos, toggleStatus, deleteTodo }: TodoListProps) {
 
   async function handleDeleteClick(id: string) {
     await deleteTodo(id);
-  }
-
-  async function handleToggleStatus(id: string) {
-    await toggleStatus(id);
   }
 
   const getCellFocusMode = (columnId: TableColumnId): DataGridCellFocusMode => {
@@ -133,6 +123,7 @@ function TodoList({ todos, toggleStatus, deleteTodo }: TodoListProps) {
       items={todos}
       columns={columns}
       selectionMode="multiselect"
+      subtleSelection
       getRowId={(item) => item.id}
       focusMode="composite"
       style={{ minWidth: "550px" }}

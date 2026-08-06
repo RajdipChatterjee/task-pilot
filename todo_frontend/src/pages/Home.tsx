@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 
 import * as todoApi from "../api/todoApi";
-import type { Todo, CreateTodo } from "../models/Todo";
-import TodoForm from "../components/TodoForm";
+import type { Todo } from "../models/Todo";
 import TodoList from "../components/TodoList";
+import ToolBar from "../components/ToolBar";
 
 function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -13,16 +13,11 @@ function Home() {
     setTodos(data);
   }
 
-  async function handleCreateTodo(todo: CreateTodo) {
-    await todoApi.createTodo(todo);
-    await loadTodos();
-  }
-
   async function handleToggleStatus(id: string) {
-    const todo = todos.find(todo => todo.id == id);
-    if(!todo) return;
+    const todo = todos.find((todo) => todo.id == id);
+    if (!todo) return;
 
-    const updatedTodo = {...todo, isCompleted: !todo?.isCompleted};
+    const updatedTodo = { ...todo, isCompleted: !todo?.isCompleted };
 
     await todoApi.updateTodo(id, updatedTodo);
     await loadTodos();
@@ -45,9 +40,12 @@ function Home() {
         padding: "20px",
       }}
     >
-      
-      <TodoForm handleCreateTodo={handleCreateTodo}/>
-      <TodoList todos={todos} toggleStatus={handleToggleStatus} deleteTodo={handleDeleteTodo}/>
+      <ToolBar />
+      <TodoList
+        todos={todos}
+        toggleStatus={handleToggleStatus}
+        deleteTodo={handleDeleteTodo}
+      />
     </div>
   );
 }
