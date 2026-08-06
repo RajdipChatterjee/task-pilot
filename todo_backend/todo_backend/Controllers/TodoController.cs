@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using todo_backend.DTOs;
 using todo_backend.Interfaces;
+using todo_backend.Common;
 
 namespace todo_backend.Controllers;
 
@@ -16,49 +17,49 @@ public class TodoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<TodoResponseDto>>> GetAll()
+    public async Task<ActionResult<ApiResponse<List<TodoResponseDto>>>> GetAll()
     {
-        return Ok(await _service.GetAllAsync());
+        return Ok(new ApiResponse<List<TodoResponseDto>>(true, await _service.GetAllAsync(), "All todos retrieved successfully.", null));
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<TodoResponseDto>> GetById(string id)
+    public async Task<ActionResult<ApiResponse<TodoResponseDto>>> GetById(string id)
     {
         var todo = await _service.GetByIdAsync(id);
 
         if (todo == null)
-            return NotFound();
+            return NotFound(new ApiResponse<TodoResponseDto>(false, null, "Todo not found.", null));
 
-        return Ok(todo);
+        return Ok(new ApiResponse<TodoResponseDto>(true, todo, "Todo retrieved successfully.", null));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateTodoDto dto)
+    public async Task<ActionResult<ApiResponse<TodoResponseDto>>> Create(CreateTodoDto dto)
     {
         try
         {
-            await _service.CreateAsync(dto);
-            return Ok();
+            var todoResponseDto = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = todoResponseDto.Id }, new ApiResponse<TodoResponseDto>(true, todoResponseDto, "Todo created successfully.", null));
         }
         catch(Exception ex)
         {
-            return BadRequest(ex.ToString());
+            return BadRequest(new ApiResponse<TodoResponseDto>(false, null, ex.Message, new List<string> { ex.Message }));
         }
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, UpdateTodoDto dto)
+    public async Task<ActionResult<ApiResponse<TodoResponseDto>>> Update(string id, UpdateTodoDto dto)
     {
         await _service.UpdateAsync(id, dto);
 
-        return NoContent();
+        return Ok(new ApiResponse<TodoResponseDto>(true, null, "Todo updated successfully.", null));
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<ActionResult<ApiResponse<TodoResponseDto>>> Delete(string id)
     {
         await _service.DeleteAsync(id);
 
-        return NoContent();
+        return Ok(new ApiResponse<TodoResponseDto>(true, null, "Todo deleted successfully.", null));
     }
 }

@@ -9,7 +9,7 @@ namespace todo_backend.Interfaces
 
         Task<TodoResponseDto?> GetByIdAsync(string id);
 
-        Task CreateAsync(CreateTodoDto todo);
+        Task<TodoResponseDto> CreateAsync(CreateTodoDto todo);
 
         Task UpdateAsync(string id, UpdateTodoDto todo);
 
