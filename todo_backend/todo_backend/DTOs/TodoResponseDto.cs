@@ -1,4 +1,6 @@
-﻿namespace todo_backend.DTOs;
+using todo_backend.Enums;
+
+namespace todo_backend.DTOs;
 
 public class TodoResponseDto
 {
@@ -8,5 +10,5 @@ public class TodoResponseDto
 
     public string? Description { get; set; }
 
-    public bool IsCompleted { get; set; }
+    public TodoStatus Status { get; set; }
 }

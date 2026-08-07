@@ -1,5 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using todo_backend.Enums;
 
 namespace todo_backend.Models
 {
@@ -15,7 +16,7 @@ namespace todo_backend.Models
         [BsonElement("description")]
         public string? Description { get; set; }
 
-        [BsonElement("isCompleted")]
-        public bool IsCompleted { get; set; }
+        [BsonElement("status")]
+        public TodoStatus Status { get; set; } = TodoStatus.Pending;
     }
 }

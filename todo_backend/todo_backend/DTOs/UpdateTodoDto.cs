@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using todo_backend.Enums;
 
 namespace todo_backend.DTOs;
 
@@ -11,5 +12,6 @@ public class UpdateTodoDto
     [MaxLength(500)]
     public string? Description { get; set; }
 
-    public bool IsCompleted { get; set; }
+    [EnumDataType(typeof(TodoStatus))]
+    public TodoStatus Status { get; set; }
 }

@@ -16,12 +16,12 @@ import {
 } from "@fluentui/react-components";
 import { DeleteRegular } from "@fluentui/react-icons";
 import type { Todo } from "../models/Todo";
+import { TodoStatus } from "../enums/TodoStatus";
 import TaskDialog from "./TaskDialog";
 import { DialogMode } from "../enums/DialogMode";
 
 interface TodoListProps {
   todos: Todo[];
-  toggleStatus: (id: string) => Promise<void>;
   deleteTodo: (id: string) => Promise<void>;
   loadTodos: () => Promise<void>;
 }
@@ -32,72 +32,60 @@ const useClasses = makeStyles({
   },
 });
 
+function getBadgeProps(status: TodoStatus) {
+  switch (status) {
+    case TodoStatus.Done:
+      return { color: "success" as const, label: "Done" };
+    case TodoStatus.Completed:
+      return { color: "brand" as const, label: "Completed" };
+    case TodoStatus.Pending:
+    default:
+      return { color: "warning" as const, label: "Pending" };
+  }
+}
+
 function TodoList({ todos, deleteTodo, loadTodos }: TodoListProps) {
   const classes = useClasses();
 
   const columns: TableColumnDefinition<Todo>[] = [
     createTableColumn<Todo>({
       columnId: "Task",
-      compare: (a, b) => {
-        return a.title.localeCompare(b.title);
-      },
-      renderHeaderCell: () => {
-        return "Task";
-      },
-      renderCell: (item) => {
-        return <TableCellLayout>{item.title}</TableCellLayout>;
-      },
+      compare: (a, b) => a.title.localeCompare(b.title),
+      renderHeaderCell: () => "Task",
+      renderCell: (item) => <TableCellLayout>{item.title}</TableCellLayout>,
     }),
     createTableColumn<Todo>({
       columnId: "Description",
-      compare: (a, b) => {
-        return a.title.localeCompare(b.title);
-      },
-      renderHeaderCell: () => {
-        return "Description";
-      },
-      renderCell: (item) => {
-        return <TableCellLayout>{item.description}</TableCellLayout>;
-      },
+      compare: (a, b) => (a.description || "").localeCompare(b.description || ""),
+      renderHeaderCell: () => "Description",
+      renderCell: (item) => <TableCellLayout>{item.description}</TableCellLayout>,
     }),
     createTableColumn<Todo>({
       columnId: "Status",
-      compare: (a, b) => {
-        return a.title.localeCompare(b.title);
-      },
-      renderHeaderCell: () => {
-        return "Status";
-      },
+      compare: (a, b) => (a.status || "").localeCompare(b.status || ""),
+      renderHeaderCell: () => "Status",
       renderCell: (item) => {
+        const badgeProps = getBadgeProps(item.status);
         return (
           <Badge
             appearance="tint"
             size="extra-large"
-            color={item.isCompleted ? "brand" : "warning"}
+            color={badgeProps.color}
           >
-            {item.isCompleted ? "Completed" : "Pending"}
+            {badgeProps.label}
           </Badge>
         );
       },
     }),
     createTableColumn<Todo>({
       columnId: "Actions",
-      compare: (a, b) => {
-        return a.title.localeCompare(b.title);
-      },
-      renderHeaderCell: () => {
-        return "Actions";
-      },
+      renderHeaderCell: () => "Actions",
       renderCell: (item) => {
         return (
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <TaskDialog mode={DialogMode.Edit} todo={item} onSuccess={() => loadTodos()}/>
-            <Button
-              onClick={() => handleDeleteClick(item.id)}
-            >
-              <DeleteRegular
-                className={classes.container}
-              />
+          <div style={{ display: "flex", gap: "8px" }}>
+            <TaskDialog mode={DialogMode.Edit} todo={item} onSuccess={() => loadTodos()} />
+            <Button onClick={() => handleDeleteClick(item.id)}>
+              <DeleteRegular className={classes.container} />
             </Button>
           </div>
         );
@@ -119,6 +107,7 @@ function TodoList({ todos, deleteTodo, loadTodos }: TodoListProps) {
         return "cell";
     }
   };
+
   return (
     <DataGrid
       items={todos}

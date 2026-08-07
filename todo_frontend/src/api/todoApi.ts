@@ -1,5 +1,5 @@
 import api from "./axios";
-import type { ApiResponse, CreateTodo, Todo } from "../models/Todo";
+import type { ApiResponse, CreateTodo, UpdateTodo, Todo } from "../models/Todo";
 
 export async function createTodo(todo: CreateTodo) {
     const response = await api.post<ApiResponse<Todo>>("/todo", todo);
@@ -20,7 +20,7 @@ export async function getTodo(id: string) {
     return response.data.data;
 }
 
-export async function updateTodo(id: string, todo: CreateTodo) {
+export async function updateTodo(id: string, todo: UpdateTodo) {
     await api.put(`/todo/${id}`, todo);
 }
 

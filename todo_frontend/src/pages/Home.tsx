@@ -13,16 +13,6 @@ function Home() {
     setTodos(data);
   }
 
-  async function handleToggleStatus(id: string) {
-    const todo = todos.find((todo) => todo.id == id);
-    if (!todo) return;
-
-    const updatedTodo = { ...todo, isCompleted: !todo?.isCompleted };
-
-    await todoApi.updateTodo(id, updatedTodo);
-    await loadTodos();
-  }
-
   async function handleDeleteTodo(id: string) {
     await todoApi.deleteTodo(id);
     await loadTodos();
@@ -40,12 +30,9 @@ function Home() {
         padding: "20px",
       }}
     >
-      <ToolBar 
-        loadTodos={loadTodos}
-      />
+      <ToolBar loadTodos={loadTodos} />
       <TodoList
         todos={todos}
-        toggleStatus={handleToggleStatus}
         deleteTodo={handleDeleteTodo}
         loadTodos={loadTodos}
       />

@@ -14,6 +14,7 @@ import TodoForm from "./TodoForm";
 import * as todoApi from "../api/todoApi";
 import type { CreateTodo, Todo } from "../models/Todo";
 import { DialogMode } from "../enums/DialogMode";
+import { TodoStatus } from "../enums/TodoStatus";
 import { useEffect, useState } from "react";
 
 interface TaskDialogProps {
@@ -34,6 +35,7 @@ function TaskDialog({ mode, todo, onSuccess }: TaskDialogProps) {
     defaultValues: {
       title: "",
       description: "",
+      status: TodoStatus.Pending,
     },
   });
 
@@ -45,9 +47,7 @@ function TaskDialog({ mode, todo, onSuccess }: TaskDialogProps) {
     }
 
     await onSuccess();
-
     reset();
-
     setOpen(false);
   }
 
@@ -56,11 +56,13 @@ function TaskDialog({ mode, todo, onSuccess }: TaskDialogProps) {
       reset({
         title: todo.title,
         description: todo.description,
+        status: todo.status ?? TodoStatus.Pending,
       });
     } else {
       reset({
         title: "",
         description: "",
+        status: TodoStatus.Pending,
       });
     }
   }, [mode, todo, reset]);
@@ -73,14 +75,14 @@ function TaskDialog({ mode, todo, onSuccess }: TaskDialogProps) {
       <DialogTrigger disableButtonEnhancement>
         <Button
           icon={
-            mode == DialogMode.Create ? (
+            mode === DialogMode.Create ? (
               <CollectionsAddRegular />
             ) : (
               <EditRegular />
             )
           }
         >
-          {mode == DialogMode.Create ? "Add Task" : ""}
+          {mode === DialogMode.Create ? "Add Task" : ""}
         </Button>
       </DialogTrigger>
       <DialogSurface>
@@ -95,7 +97,7 @@ function TaskDialog({ mode, todo, onSuccess }: TaskDialogProps) {
           <DialogActions fluid={true}>
             <DialogTrigger disableButtonEnhancement>
               <Button appearance="primary" onClick={handleSubmit(onSubmit)}>
-                {mode == DialogMode.Create ? "Add Task" : "Save"}
+                {mode === DialogMode.Create ? "Add Task" : "Save"}
               </Button>
             </DialogTrigger>
             <DialogTrigger disableButtonEnhancement>

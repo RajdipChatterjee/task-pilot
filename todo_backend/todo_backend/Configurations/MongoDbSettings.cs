@@ -5,5 +5,7 @@ namespace todo_backend.Configurations
         public string ConnectionString { get; set; } = String.Empty;
         public string DatabaseName { get; set; } = String.Empty;
         public string TodoCollection { get; set; } = String.Empty;
+
+        public string UserCollection { get; set; } = String.Empty;
     }
 }

@@ -22,7 +22,7 @@ public class TodoService : ITodoService
             Id = t.Id,
             Title = t.Title,
             Description = t.Description,
-            IsCompleted = t.IsCompleted
+            Status = t.Status
         }).ToList();
     }
 
@@ -38,7 +38,7 @@ public class TodoService : ITodoService
             Id = todo.Id,
             Title = todo.Title,
             Description = todo.Description,
-            IsCompleted = todo.IsCompleted
+            Status = todo.Status
         };
     }
 
@@ -48,7 +48,7 @@ public class TodoService : ITodoService
         {
             Title = dto.Title,
             Description = dto.Description,
-            IsCompleted = false
+            Status = dto.Status
         };
 
         await _repository.CreateAsync(todo);
@@ -58,7 +58,7 @@ public class TodoService : ITodoService
             Id = todo.Id,
             Title = todo.Title,
             Description = todo.Description,
-            IsCompleted = todo.IsCompleted
+            Status = todo.Status
         };
     }
 
@@ -69,7 +69,7 @@ public class TodoService : ITodoService
             Id = id,
             Title = dto.Title,
             Description = dto.Description,
-            IsCompleted = dto.IsCompleted
+            Status = dto.Status
         };
 
         await _repository.UpdateAsync(id, todo);
