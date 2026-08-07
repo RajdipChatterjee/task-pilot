@@ -40,11 +40,14 @@ function Home() {
         padding: "20px",
       }}
     >
-      <ToolBar />
+      <ToolBar 
+        loadTodos={loadTodos}
+      />
       <TodoList
         todos={todos}
         toggleStatus={handleToggleStatus}
         deleteTodo={handleDeleteTodo}
+        loadTodos={loadTodos}
       />
     </div>
   );

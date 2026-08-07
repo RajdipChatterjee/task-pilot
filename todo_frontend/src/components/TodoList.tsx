@@ -23,6 +23,7 @@ interface TodoListProps {
   todos: Todo[];
   toggleStatus: (id: string) => Promise<void>;
   deleteTodo: (id: string) => Promise<void>;
+  loadTodos: () => Promise<void>;
 }
 
 const useClasses = makeStyles({
@@ -31,7 +32,7 @@ const useClasses = makeStyles({
   },
 });
 
-function TodoList({ todos, deleteTodo }: TodoListProps) {
+function TodoList({ todos, deleteTodo, loadTodos }: TodoListProps) {
   const classes = useClasses();
 
   const columns: TableColumnDefinition<Todo>[] = [
@@ -90,7 +91,7 @@ function TodoList({ todos, deleteTodo }: TodoListProps) {
       renderCell: (item) => {
         return (
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <TaskDialog mode={DialogMode.Edit} todo={item}/>
+            <TaskDialog mode={DialogMode.Edit} todo={item} onSuccess={() => loadTodos()}/>
             <Button
               onClick={() => handleDeleteClick(item.id)}
             >

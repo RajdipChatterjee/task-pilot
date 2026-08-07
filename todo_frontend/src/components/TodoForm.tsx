@@ -1,9 +1,7 @@
 import {
   Card,
-  CardHeader,
   Field,
   Input,
-  Text,
   Textarea,
 } from "@fluentui/react-components";
 
@@ -20,15 +18,6 @@ interface TodoFormProps {
 function TodoForm({ control, errors }: TodoFormProps) {
   return (
     <Card>
-      <CardHeader
-        header={
-          <Text size={700} weight="semibold">
-            Todo Application
-          </Text>
-        }
-        description="Built with React + ASP.NET Core"
-      />
-
       <Field
         label="Title"
         validationState={errors.title ? "warning" : "none"}

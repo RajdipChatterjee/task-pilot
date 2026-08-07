@@ -14,15 +14,17 @@ import TodoForm from "./TodoForm";
 import * as todoApi from "../api/todoApi";
 import type { CreateTodo, Todo } from "../models/Todo";
 import { DialogMode } from "../enums/DialogMode";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface TaskDialogProps {
   mode: DialogMode;
   todo?: Todo;
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }
 
 function TaskDialog({ mode, todo, onSuccess }: TaskDialogProps) {
+  const [open, setOpen] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -42,7 +44,11 @@ function TaskDialog({ mode, todo, onSuccess }: TaskDialogProps) {
       await todoApi.updateTodo(todo!.id, todoData);
     }
 
-    onSuccess?.();
+    await onSuccess();
+
+    reset();
+
+    setOpen(false);
   }
 
   useEffect(() => {
@@ -60,8 +66,11 @@ function TaskDialog({ mode, todo, onSuccess }: TaskDialogProps) {
   }, [mode, todo, reset]);
 
   return (
-    <Dialog>
-      <DialogTrigger>
+    <Dialog
+      open={open}
+      onOpenChange={(_, data) => setOpen(data.open)}
+    >
+      <DialogTrigger disableButtonEnhancement>
         <Button
           icon={
             mode == DialogMode.Create ? (
@@ -76,7 +85,9 @@ function TaskDialog({ mode, todo, onSuccess }: TaskDialogProps) {
       </DialogTrigger>
       <DialogSurface>
         <DialogBody>
-          <DialogTitle>Task Details</DialogTitle>
+          <DialogTitle>
+            {mode === DialogMode.Create ? "Create Task" : "Edit Task"}
+          </DialogTitle>
           <DialogContent>
             <TodoForm control={control} errors={errors} />
           </DialogContent>
