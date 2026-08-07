@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using todo_backend.Common;
-using todo_backend.DTOs;
 using todo_backend.DTOs.Auth;
 using todo_backend.Interfaces;
 
