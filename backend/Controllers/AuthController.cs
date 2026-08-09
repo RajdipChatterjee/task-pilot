@@ -1,0 +1,72 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TaskPilot.Api.Common;
+using TaskPilot.Api.DTOs.Auth;
+using TaskPilot.Api.Interfaces;
+
+namespace TaskPilot.Api.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    private readonly IAuthService _authService;
+
+    public AuthController(IAuthService authService)
+    {
+        _authService = authService;
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+        return Ok(new
+        {
+            Id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+            Username = User.Identity?.Name
+        });
+    }
+
+    [HttpPost("login")]
+    public async Task<ActionResult<ApiResponse<AuthResponseDto>>> LoginUser(LoginDto dto)
+    {
+
+        try
+        {
+            var result = await _authService.LoginAsync(dto);
+            return Ok(new ApiResponse<AuthResponseDto>(true, result, "User logged in"));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("register")]
+    public async Task<ActionResult<ApiResponse<string>>> CreateUser(RegisterDto dto)
+    {
+        try
+        {
+            await _authService.RegisterAsync(dto);
+            return Ok(new ApiResponse<string>(true, "User registered successfully", "Registration completed"));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<ApiResponse<AuthResponseDto>>> Refresh(
+    [FromBody] string refreshToken)
+    {
+        var result = await _authService.RefreshAsync(refreshToken);
+
+        return Ok(new ApiResponse<AuthResponseDto>(
+            true,
+            result,
+            "Token refreshed successfully"
+        ));
+    }
+}
