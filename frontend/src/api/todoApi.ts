@@ -1,5 +1,7 @@
 import api from "./axios";
-import type { ApiResponse, CreateTodo, UpdateTodo, Todo } from "../models/Todo";
+import type { CreateTodo, UpdateTodo, Todo } from "../models/Todo";
+
+import type { ApiResponse } from "../models/ApiResponse";
 
 export async function createTodo(todo: CreateTodo) {
     const response = await api.post<ApiResponse<Todo>>("/todo", todo);
