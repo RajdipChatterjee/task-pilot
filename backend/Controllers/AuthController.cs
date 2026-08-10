@@ -29,13 +29,40 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<ApiResponse<AuthResponseDto>>> LoginUser(LoginDto dto)
+    public async Task<ActionResult<ApiResponse<string>>> LoginUser(LoginDto dto)
     {
 
         try
         {
             var result = await _authService.LoginAsync(dto);
-            return Ok(new ApiResponse<AuthResponseDto>(true, result, "User logged in"));
+
+            Response.Cookies.Append(
+            "accessToken",
+            result.AccessToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(15)
+            });
+
+            Response.Cookies.Append(
+                "refreshToken",
+                result.RefreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                });
+
+            return Ok(new ApiResponse<string>(
+                true,
+                "User logged in",
+                "User logged in"
+            ));
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -62,14 +89,29 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public async Task<ActionResult<ApiResponse<AuthResponseDto>>> Refresh(
-    [FromBody] string refreshToken)
+    public async Task<ActionResult<ApiResponse<string>>> Refresh()
     {
+        var refreshToken = Request.Cookies["refreshToken"];
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return Unauthorized("Refresh token is missing.");
+
         var result = await _authService.RefreshAsync(refreshToken);
 
-        return Ok(new ApiResponse<AuthResponseDto>(
+        Response.Cookies.Append(
+            "accessToken",
+            result.AccessToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(15)
+            });
+
+        return Ok(new ApiResponse<string>(
             true,
-            result,
+            "Token refreshed successfully",
             "Token refreshed successfully"
         ));
     }

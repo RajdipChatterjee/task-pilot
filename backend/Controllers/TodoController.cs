@@ -1,12 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskPilot.Api.Interfaces;
 using TaskPilot.Api.Common;
 using TaskPilot.Api.DTOs.Todo;
+using TaskPilot.Api.Interfaces;
 
 namespace TaskPilot.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TodoController : ControllerBase
 {
     private readonly ITodoService _service;

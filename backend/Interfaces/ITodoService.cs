@@ -1,5 +1,4 @@
-﻿using TaskPilot.Api.Models;
-using TaskPilot.Api.DTOs.Todo;
+﻿using TaskPilot.Api.DTOs.Todo;
 
 namespace TaskPilot.Api.Interfaces
 {
