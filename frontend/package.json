@@ -13,11 +13,13 @@
     "@fluentui/react-components": "^9.74.4",
     "@fluentui/react-icons": "^2.0.334",
     "@hookform/resolvers": "^5.7.1",
+    "@reduxjs/toolkit": "^2.12.0",
     "axios": "^1.19.0",
     "pnpm": "^11.20.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.84.0",
+    "react-redux": "^9.3.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

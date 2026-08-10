@@ -55,9 +55,35 @@ public class AuthService : IAuthService
         };
     }
 
-    public Task<AuthResponseDto> RefreshAsync(string refreshToken)
+    public async Task<AuthResponseDto> RefreshAsync(string refreshToken)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            throw new UnauthorizedAccessException("Refresh token is required.");
+
+        var user = await _userRepository
+            .GetByRefreshTokenAsync(refreshToken);
+
+        if (user == null)
+            throw new UnauthorizedAccessException("Invalid refresh token.");
+
+        var token = user.RefreshTokens
+            .FirstOrDefault(x => x.Token == refreshToken);
+
+        if (token == null ||
+            token.IsRevoked ||
+            token.ExpiresAt <= DateTime.UtcNow)
+        {
+            throw new UnauthorizedAccessException(
+                "Refresh token is invalid or expired.");
+        }
+
+        var newAccessToken = _jwtService.GenerateAccessToken(user);
+
+        return new AuthResponseDto
+        {
+            AccessToken = newAccessToken,
+            RefreshToken = refreshToken
+        };
     }
 
     public async Task RegisterAsync(RegisterDto dto)

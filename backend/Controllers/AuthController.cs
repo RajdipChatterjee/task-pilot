@@ -37,6 +37,10 @@ public class AuthController : ControllerBase
             var result = await _authService.LoginAsync(dto);
             return Ok(new ApiResponse<AuthResponseDto>(true, result, "User logged in"));
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
         catch (Exception ex)
         {
             return BadRequest(ex.Message);
