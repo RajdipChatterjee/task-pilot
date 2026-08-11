@@ -46,8 +46,8 @@ export async function register(dto: RegisterDto) {
 export async function getCurrentUser() {
     const response = await api.get<ApiResponse<User>>("/auth/me");
 
-    if (!response.data.data)
-        throw new Error(response.data.message);
+    if (!response.data.success)
+    throw new Error(response.data.message);
 
     return response.data.data;
 }

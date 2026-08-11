@@ -1,86 +1,92 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
 import {
-    Button,
-    Field,
-    Input,
-    makeStyles,
-    Title3,
+  Body1,
+  Button,
+  Card,
+  CardFooter,
+  CardHeader,
+  Input,
+  Label,
+  Link,
+  Title1,
 } from "@fluentui/react-components";
-
-import { login, getCurrentUser } from "../api/authApi";
-import { setUser } from "../features/auth/authSlice";
-import type { AppDispatch } from "../store/store";
+import {
+  EyeOffRegular,
+  EyeRegular,
+  LockClosedFilled,
+  PersonColor,
+} from "@fluentui/react-icons";
+import { makeStyles } from "@fluentui/react-components";
+import { useForm } from "react-hook-form";
+import type { LoginDto } from "../models/Auth";
+import { useState } from "react";
 
 const useStyles = makeStyles({
-    container: {
-        width: "400px",
-        margin: "100px auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "16px",
-    },
+  rightElement: {
+    marginLeft: "auto",
+  },
+  makeSpace:{
+    padding: "4.5%"
+  }
 });
 
-export default function Login() {
-    const styles = useStyles();
-    const dispatch = useDispatch<AppDispatch>();
+function Login() {
+  const styles = useStyles();
 
-    const [usernameOrEmail, setUsernameOrEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+  const { register, handleSubmit } = useForm<LoginDto>();
+  function onSubmit(data: LoginDto) {
+    console.log(data)
+  }
 
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        setError("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  function togglePasswordVisibility() {
+    setPasswordVisible((prev) => !prev);
+  }
 
-        try {
-            // Backend sets accessToken + refreshToken cookies
-            await login({
-                usernameOrEmail,
-                password,
-            });
-
-            // Ask backend who is currently authenticated
-            const user = await getCurrentUser();
-
-            // Store only user/application state in Redux
-            dispatch(setUser(user));
-
-            console.log("Logged in successfully");
-        } catch (error) {
-            setError("Invalid username/email or password.");
+  return (
+    <Card className={styles.makeSpace}>
+      <CardHeader
+        header={
+          <div>
+            <Title1>
+              <b>Welcome back</b>
+            </Title1>
+            <br />
+            <Body1>Sign in to your workspace</Body1>
+          </div>
         }
-    }
-
-    return (
-        <form className={styles.container} onSubmit={handleSubmit}>
-            <Title3>Login to TaskPilot</Title3>
-
-            <Field label="Username or Email">
-                <Input
-                    value={usernameOrEmail}
-                    onChange={(_, data) =>
-                        setUsernameOrEmail(data.value)
-                    }
-                />
-            </Field>
-
-            <Field label="Password">
-                <Input
-                    type="password"
-                    value={password}
-                    onChange={(_, data) =>
-                        setPassword(data.value)
-                    }
-                />
-            </Field>
-
-            {error && <div>{error}</div>}
-
-            <Button appearance="primary" type="submit">
-                Login
-            </Button>
-        </form>
-    );
+      />
+      <Label>Username or Email</Label>
+      <Input
+        {...register("usernameOrEmail")}
+        type="email"
+        placeholder="hello@taskpilot.com"
+        contentBefore={<PersonColor />}
+      />
+      <Label>Password</Label>
+      <Input
+        {...register("password")}
+        className=""
+        type={passwordVisible ? "text" : "password"}
+        placeholder="password"
+        contentBefore={<LockClosedFilled />}
+        contentAfter={
+          <Button
+            icon={passwordVisible ? <EyeRegular /> : <EyeOffRegular />}
+            appearance="transparent"
+            onClick={togglePasswordVisibility}
+          />
+        }
+      />
+      <Link href="https://www.bing.com" className={styles.rightElement}>
+        Forgot password?
+      </Link>
+      <CardFooter>
+        <Button type="submit" shape="rounded" onSubmit={handleSubmit(onSubmit)}>
+          Sign In
+        </Button>
+      </CardFooter>
+    </Card>
+  );
 }
+
+export default Login;
