@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TaskPilot.Api.Common;
 using TaskPilot.Api.DTOs.Auth;
+using TaskPilot.Api.DTOs.User;
 using TaskPilot.Api.Interfaces;
 
 namespace TaskPilot.Api.Controllers;
@@ -19,13 +21,19 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpGet("me")]
-    public IActionResult Me()
+    public ActionResult<ApiResponse<UserResponseDto>> Me()
     {
-        return Ok(new
+        var user = new UserResponseDto
         {
-            Id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+            Id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
             Username = User.Identity?.Name
-        });
+        };
+
+        return Ok(new ApiResponse<UserResponseDto>(
+            true,
+            user,
+            "User retrieved successfully"
+        ));
     }
 
     [HttpPost("login")]
