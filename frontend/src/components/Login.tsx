@@ -25,7 +25,10 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "../schemas/auth.schema";
 import type { LoginDto } from "../models/Auth";
-import { loginUser } from "../api/authApi";
+import { getCurrentUser, loginUser } from "../api/authApi";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../store/store";
+import { setUser } from "../features/auth/authSlice";
 
 const useStyles = makeStyles({
   rightElement: {
@@ -69,6 +72,7 @@ const useStyles = makeStyles({
 function Login() {
   const styles = useStyles();
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -90,7 +94,11 @@ function Login() {
       };
       const result = await loginUser(payload);
 
-      navigate("/");
+      const user = await getCurrentUser();
+
+      dispatch(setUser(user));
+
+      navigate("/", { replace: true });
       console.log(result);
     } catch (error) {
       console.log(error);
