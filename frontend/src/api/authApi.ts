@@ -8,7 +8,7 @@ import type {
 
 import type { ApiResponse } from "../models/ApiResponse";
 
-export async function login(dto: LoginDto) {
+export async function loginUser(dto: LoginDto) {
     const response = await api.post<ApiResponse<string>>(
         "/auth/login",
         dto
@@ -31,7 +31,7 @@ export async function refresh() {
     return response.data;
 }
 
-export async function register(dto: RegisterDto) {
+export async function registerUser(dto: RegisterDto) {
     const response = await api.post<ApiResponse<string>>(
         "/auth/register",
         dto

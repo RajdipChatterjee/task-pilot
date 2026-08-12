@@ -7,13 +7,15 @@ import {
   Divider,
   Field,
   Input,
-  Link,
+  Spinner,
   Title1,
 } from "@fluentui/react-components";
+import { Link, useNavigate } from "react-router-dom";
 import {
   EyeOffRegular,
   EyeRegular,
   LockClosedFilled,
+  MailRegular,
   PersonColor,
 } from "@fluentui/react-icons";
 import { makeStyles } from "@fluentui/react-components";
@@ -21,8 +23,10 @@ import { useForm } from "react-hook-form";
 import google from "../assets/chrome.svg";
 import github from "../assets/github.svg";
 import { useState } from "react";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema, type RegisterFormData } from "../schemas/auth.schema";
+import type { RegisterDto } from "../models/Auth";
+import { registerUser } from "../api/authApi";
 
 const useStyles = makeStyles({
   rightElement: {
@@ -45,7 +49,7 @@ const useStyles = makeStyles({
   field: {
     marginTop: "10px",
   },
-  signinButton: {
+  createAccountButton: {
     width: "100%",
     color: "white",
     background: "#4F46E5",
@@ -63,32 +67,48 @@ const useStyles = makeStyles({
   },
 });
 
-const loginSchema = z.object({
-  usernameOrEmail: z.string().min(1, "Username or email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-
-function Login() {
+function Register() {
   const styles = useStyles();
+  const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
   });
 
-  function onSubmit(data: LoginFormData) {
-    console.log(data);
+  async function onSubmit(data: RegisterFormData) {
+    setIsLoading(true);
+
+    try {
+      const payload: RegisterDto = {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      };
+      const result = await registerUser(payload);
+      navigate("/login");
+      console.log(result);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   function togglePasswordVisibility() {
     setPasswordVisible((prev) => !prev);
+  }
+
+  function toggleConfirmPasswordVisibility() {
+    setConfirmPasswordVisible((prev) => !prev);
   }
 
   return (
@@ -98,27 +118,43 @@ function Login() {
           header={
             <div>
               <Title1>
-                <b>Welcome back</b>
+                <b>Create your workspace</b>
               </Title1>
               <br />
-              <Body1>Sign in to your workspace</Body1>
+              <Body1>Start organizing in minutes</Body1>
             </div>
           }
           style={{ marginBottom: "14px" }}
         />
+
         <Field
-          label="Username or Email"
+          label="Username"
           className={styles.field}
-          validationState={errors.usernameOrEmail ? "error" : "none"}
-          validationMessage={errors.usernameOrEmail?.message}
+          validationState={errors.username ? "error" : "none"}
+          validationMessage={errors.username?.message}
         >
           <Input
-            {...register("usernameOrEmail")}
+            {...register("username")}
             className={styles.input}
-            placeholder="hello@taskpilot.com"
+            placeholder="Username"
             contentBefore={<PersonColor />}
           />
         </Field>
+
+        <Field
+          label="Email"
+          className={styles.field}
+          validationState={errors.email ? "error" : "none"}
+          validationMessage={errors.email?.message}
+        >
+          <Input
+            {...register("email")}
+            className={styles.input}
+            placeholder="design@studio.com"
+            contentBefore={<MailRegular />}
+          />
+        </Field>
+
         <Field
           label="Password"
           className={styles.field}
@@ -141,16 +177,43 @@ function Login() {
             }
           />
         </Field>
-        <Link href="https://www.bing.com" className={styles.rightElement}>
-          Forgot password?
-        </Link>
+
+        <Field
+          label="Confirm Password"
+          className={styles.field}
+          validationState={errors.confirmPassword ? "error" : "none"}
+          validationMessage={errors.confirmPassword?.message}
+        >
+          <Input
+            {...register("confirmPassword")}
+            className={styles.input}
+            type={confirmPasswordVisible ? "text" : "password"}
+            placeholder="password"
+            contentBefore={<LockClosedFilled />}
+            contentAfter={
+              <Button
+                type="button"
+                icon={
+                  confirmPasswordVisible ? <EyeRegular /> : <EyeOffRegular />
+                }
+                appearance="transparent"
+                onClick={toggleConfirmPasswordVisibility}
+              />
+            }
+          />
+        </Field>
         <Button
           type="submit"
           shape="rounded"
-          className={styles.signinButton}
+          className={styles.createAccountButton}
           size="large"
+          disabled={isLoading}
         >
-          Sign In
+          {isLoading ? (
+            <Spinner labelPosition="below" label="Creating Account..." />
+          ) : (
+            "Create Account"
+          )}
         </Button>
         <Divider style={{ marginTop: 14, marginBottom: 14 }}>
           {" "}
@@ -169,9 +232,9 @@ function Login() {
           </Button>
         </CardFooter>
         <Body1 style={{ margin: "auto" }}>
-          Don't have an account?{" "}
-          <Link style={{ fontWeight: "bold", color: "#4F46E5" }}>
-            Create one
+          Already have an account?{" "}
+          <Link style={{ fontWeight: "bold", color: "#4F46E5" }} to="/login">
+            Sign in
           </Link>
         </Body1>
       </form>
@@ -179,4 +242,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;
