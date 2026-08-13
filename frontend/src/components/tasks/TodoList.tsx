@@ -15,10 +15,10 @@ import {
   Button,
 } from "@fluentui/react-components";
 import { DeleteRegular } from "@fluentui/react-icons";
-import type { Todo } from "../models/Todo";
-import { TodoStatus } from "../enums/TodoStatus";
+import type { Todo } from "../../models/Todo";
+import { TodoStatus } from "../../enums/TodoStatus";
 import TaskDialog from "./TaskDialog";
-import { DialogMode } from "../enums/DialogMode";
+import { DialogMode } from "../../enums/DialogMode";
 
 interface TodoListProps {
   todos: Todo[];

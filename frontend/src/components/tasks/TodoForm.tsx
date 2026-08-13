@@ -10,8 +10,8 @@ import {
 import { Controller } from "react-hook-form";
 import type { Control, FieldErrors } from "react-hook-form";
 
-import type { CreateTodo } from "../models/Todo";
-import { TodoStatus } from "../enums/TodoStatus";
+import type { CreateTodo } from "../../models/Todo";
+import { TodoStatus } from "../../enums/TodoStatus";
 
 interface TodoFormProps {
   control: Control<CreateTodo>;

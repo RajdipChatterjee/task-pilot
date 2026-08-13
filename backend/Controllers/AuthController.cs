@@ -26,7 +26,8 @@ public class AuthController : ControllerBase
         var user = new UserResponseDto
         {
             Id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-            Username = User.Identity?.Name
+            Username = User.Identity?.Name,
+            Email = User.FindFirst(ClaimTypes.Email)?.Value
         };
 
         return Ok(new ApiResponse<UserResponseDto>(
@@ -80,8 +81,6 @@ public class AuthController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
-
-
     }
 
     [HttpPost("register")]
