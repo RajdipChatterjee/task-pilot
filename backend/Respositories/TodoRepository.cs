@@ -34,7 +34,18 @@ public class TodoRepository : ITodoRepository
 
     public async Task UpdateAsync(string id, Todo todo)
     {
-        await _todos.ReplaceOneAsync(x => x.Id == id, todo);
+        var filter = Builders<Todo>.Filter.Eq(
+            x => x.Id,
+            id);
+
+        var update = Builders<Todo>.Update
+            .Set(x => x.Title, todo.Title)
+            .Set(x => x.Description, todo.Description)
+            .Set(x => x.Status, todo.Status)
+            .Set(x => x.TaskDate, todo.TaskDate)
+            .Set(x => x.UpdatedAt, DateTime.UtcNow);
+
+        await _todos.UpdateOneAsync(filter, update);
     }
 
     public async Task DeleteAsync(string id)

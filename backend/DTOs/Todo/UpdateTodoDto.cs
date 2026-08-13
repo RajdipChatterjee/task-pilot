@@ -14,4 +14,7 @@ public class UpdateTodoDto
 
     [EnumDataType(typeof(TodoStatus))]
     public TodoStatus Status { get; set; }
+
+    [Required]
+    public DateTime TaskDate { get; set; }
 }

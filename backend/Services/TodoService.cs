@@ -20,9 +20,13 @@ public class TodoService : ITodoService
         return todos.Select(t => new TodoResponseDto
         {
             Id = t.Id,
+            ProjectId = t.ProjectId,
             Title = t.Title,
             Description = t.Description,
-            Status = t.Status
+            Status = t.Status,
+            TaskDate = t.TaskDate,
+            CreatedAt = t.CreatedAt,
+            UpdatedAt = t.UpdatedAt
         }).ToList();
     }
 
@@ -36,9 +40,13 @@ public class TodoService : ITodoService
         return new TodoResponseDto
         {
             Id = todo.Id,
+            ProjectId = todo.ProjectId,
             Title = todo.Title,
             Description = todo.Description,
-            Status = todo.Status
+            Status = todo.Status,
+            TaskDate = todo.TaskDate,
+            CreatedAt = todo.CreatedAt,
+            UpdatedAt = todo.UpdatedAt
         };
     }
 
@@ -46,9 +54,13 @@ public class TodoService : ITodoService
     {
         var todo = new Todo
         {
+            ProjectId = dto.ProjectId,
             Title = dto.Title,
             Description = dto.Description,
-            Status = dto.Status
+            Status = dto.Status,
+            TaskDate = dto.TaskDate,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _repository.CreateAsync(todo);
@@ -56,9 +68,13 @@ public class TodoService : ITodoService
         return new TodoResponseDto
         {
             Id = todo.Id,
+            ProjectId = todo.ProjectId,
             Title = todo.Title,
             Description = todo.Description,
-            Status = todo.Status
+            Status = todo.Status,
+            TaskDate = todo.TaskDate,
+            CreatedAt = todo.CreatedAt,
+            UpdatedAt = todo.UpdatedAt
         };
     }
 
@@ -69,7 +85,8 @@ public class TodoService : ITodoService
             Id = id,
             Title = dto.Title,
             Description = dto.Description,
-            Status = dto.Status
+            Status = dto.Status,
+            TaskDate = dto.TaskDate
         };
 
         await _repository.UpdateAsync(id, todo);
