@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { getCurrentUser } from "./api/authApi";
 import { clearUser, setUser } from "./features/auth/authSlice";
 import PublicRoute from "./routes/PublicRoute";
+import OrganizationSetupPage from "./pages/OrganizationSetupPage";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,6 +37,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Home />} />
       </Route>
+      <Route path="/organization/setup" element={<OrganizationSetupPage />} />
     </Routes>
   );
 }

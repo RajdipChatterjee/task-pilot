@@ -4,7 +4,7 @@ import {
 } from "@fluentui/react-components";
 
 import TaskDialog from "./TaskDialog";
-import {DialogMode} from "../enums/DialogMode";
+import {DialogMode} from "../../enums/DialogMode";
 
 type ToolBarProps = {
   loadTodos: () => Promise<void>;

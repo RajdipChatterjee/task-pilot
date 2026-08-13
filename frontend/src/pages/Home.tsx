@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 
 import * as todoApi from "../api/todoApi";
 import type { Todo } from "../models/Todo";
-import TodoList from "../components/TodoList";
-import ToolBar from "../components/ToolBar";
+import TodoList from "../components/tasks/TodoList";
+import ToolBar from "../components/tasks/ToolBar";
 
 function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
