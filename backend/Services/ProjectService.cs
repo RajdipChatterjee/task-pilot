@@ -1,4 +1,5 @@
-﻿using TaskPilot.Api.Interfaces;
+﻿using TaskPilot.Api.DTOs.Project;
+using TaskPilot.Api.Interfaces;
 using TaskPilot.Api.Models;
 
 namespace TaskPilot.Api.Services;
@@ -6,31 +7,93 @@ namespace TaskPilot.Api.Services;
 public class ProjectService : IProjectService
 {
     private readonly IProjectRepository _projectRepository;
+
     public ProjectService(IProjectRepository projectRepository)
     {
         _projectRepository = projectRepository;
     }
-    public async Task<Project> CreateAsync(Project project)
+
+    public async Task<ProjectDetailsDto?> CreateAsync(CreateProjectDto dto, string userId)
     {
-        return await _projectRepository.CreateAsync(project);
-    }
-    public async Task<Project?> GetByIdAsync(string id)
-    {
-        return await _projectRepository.GetByIdAsync(id);
-    }
-    
-    public async Task<List<Project>> GetByUserIdAsync(string userId)
-    {
-        return await _projectRepository.GetByUserIdAsync(userId);
+        var project = new Project
+        {
+            Name = dto.Name,
+            Description = dto.Description,
+            CreatedBy = userId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        await _projectRepository.CreateAsync(project);
+
+        return MapToDto(project);
     }
 
-    public async Task DeleteAsync(string id)
+    public async Task<ProjectDetailsDto?> GetByIdAsync(string id, string userId)
     {
+        var project = await _projectRepository.GetByIdAsync(id);
+
+        if (project == null)
+            return null;
+
+        if (project.CreatedBy != userId)
+            return null;
+
+        return MapToDto(project);
+    }
+
+    public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId)
+    {
+        var projects = await _projectRepository.GetByUserIdAsync(userId);
+
+        return projects
+            .Select(MapToDto)
+            .ToList();
+    }
+
+    public async Task UpdateAsync(string id, UpdateProjectDto dto, string userId)
+    {
+        var project = await _projectRepository.GetByIdAsync(id);
+
+        if (project == null)
+            throw new KeyNotFoundException("Project not found.");
+
+        if (project.CreatedBy != userId)
+            throw new UnauthorizedAccessException(
+                "You do not have access to this project.");
+
+        project.Name = dto.Name;
+        project.Description = dto.Description;
+        project.UpdatedAt = DateTime.UtcNow;
+
+        await _projectRepository.UpdateAsync(project);
+    }
+
+    public async Task DeleteAsync(string id, string userId)
+    {
+        var project = await _projectRepository.GetByIdAsync(id);
+
+        if (project == null)
+            throw new KeyNotFoundException("Project not found.");
+
+        if (project.CreatedBy != userId)
+            throw new UnauthorizedAccessException(
+                "You do not have access to this project.");
+
         await _projectRepository.DeleteAsync(id);
     }
 
-    public async Task UpdateAsync(Project project)
+    private static ProjectDetailsDto MapToDto(Project project)
     {
-        await _projectRepository.UpdateAsync(project);
+        return new ProjectDetailsDto
+        {
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            CreatedAt = project.CreatedAt,
+
+            // For now. Aggregation will eventually calculate this.
+            Tasks = 0
+        };
     }
 }

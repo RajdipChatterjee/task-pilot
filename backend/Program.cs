@@ -6,6 +6,7 @@ using System.Text;
 using TaskPilot.Api.Configurations;
 using TaskPilot.Api.Interfaces;
 using TaskPilot.Api.Repositories;
+using TaskPilot.Api.Respositories;
 using TaskPilot.Api.Services;
 using TaskPilot.Api.Validators.Auth;
 

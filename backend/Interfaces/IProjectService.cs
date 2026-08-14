@@ -5,9 +5,9 @@ namespace TaskPilot.Api.Interfaces;
 
 public interface IProjectService
 {
-    Task<Project> CreateAsync(CreateProjectDto project);
-    Task<Project?> GetByIdAsync(string id);
+    Task<ProjectDetailsDto> CreateAsync(CreateProjectDto project, string userId);
+    Task<ProjectDetailsDto?> GetByIdAsync(string id, string userId);
     Task<List<ProjectDetailsDto?>> GetByUserIdAsync(string userId);
-    Task UpdateAsync(CreateProjectDto project);
-    Task DeleteAsync(string id);
+    Task UpdateAsync(string id, UpdateProjectDto project, string userId);
+    Task DeleteAsync(string id, string userId);
 }

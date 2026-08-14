@@ -50,7 +50,7 @@ public class TodoController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<ApiResponse<TodoResponseDto>>> Update(string id, UpdateTodoDto dto)
+    public async Task<ActionResult<ApiResponse<string>>> Update(string id, UpdateTodoDto dto)
     {
         await _service.UpdateAsync(id, dto);
 
@@ -58,7 +58,7 @@ public class TodoController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<ApiResponse<TodoResponseDto>>> Delete(string id)
+    public async Task<ActionResult<ApiResponse<string>>> Delete(string id)
     {
         await _service.DeleteAsync(id);
 
