@@ -13,9 +13,9 @@ public class TodoService : ITodoService
         _repository = repository;
     }
 
-    public async Task<List<TodoResponseDto>> GetAllAsync()
+    public async Task<List<TodoResponseDto>> GetAllAsync(string projectId)
     {
-        var todos = await _repository.GetAllAsync();
+        var todos = await _repository.GetAllAsync(projectId);
 
         return todos.Select(t => new TodoResponseDto
         {
@@ -50,11 +50,11 @@ public class TodoService : ITodoService
         };
     }
 
-    public async Task<TodoResponseDto> CreateAsync(CreateTodoDto dto)
+    public async Task<TodoResponseDto> CreateAsync(string projectId, CreateTodoDto dto)
     {
         var todo = new Todo
         {
-            ProjectId = dto.ProjectId,
+            ProjectId = projectId,
             Title = dto.Title,
             Description = dto.Description,
             Status = dto.Status,
@@ -80,14 +80,16 @@ public class TodoService : ITodoService
 
     public async Task UpdateAsync(string id, UpdateTodoDto dto)
     {
-        var todo = new Todo
-        {
-            Id = id,
-            Title = dto.Title,
-            Description = dto.Description,
-            Status = dto.Status,
-            TaskDate = dto.TaskDate
-        };
+        var todo = await _repository.GetByIdAsync(id);
+
+        if (todo == null)
+            throw new KeyNotFoundException("Todo not found.");
+
+        todo.Title = dto.Title;
+        todo.Description = dto.Description;
+        todo.Status = dto.Status;
+        todo.TaskDate = dto.TaskDate;
+        todo.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(id, todo);
     }

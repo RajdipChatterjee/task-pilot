@@ -17,9 +17,9 @@ public class TodoRepository : ITodoRepository
         _todos = mongoDatabase.GetCollection<Todo>(options.Value.TodoCollection);
     }
 
-    public async Task<List<Todo>> GetAllAsync()
+    public async Task<List<Todo>> GetAllAsync(string projectId)
     {
-        return await _todos.Find(_ => true).ToListAsync();
+        return await _todos.Find(t => t.ProjectId == projectId).ToListAsync();
     }
 
     public async Task<Todo> GetByIdAsync(string id)

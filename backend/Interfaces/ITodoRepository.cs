@@ -5,7 +5,7 @@ namespace TaskPilot.Api.Interfaces
 
     public interface ITodoRepository
     {
-        Task<List<Todo>> GetAllAsync();
+        Task<List<Todo>> GetAllAsync(string projectId);
 
         Task<Todo?> GetByIdAsync(string id);
 

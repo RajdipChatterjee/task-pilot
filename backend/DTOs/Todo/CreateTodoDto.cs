@@ -5,8 +5,6 @@ namespace TaskPilot.Api.DTOs.Todo;
 
 public class CreateTodoDto
 {
-    [Required]
-    public string ProjectId { get; set; } = null!;
 
     [Required]
     [MaxLength(100)]

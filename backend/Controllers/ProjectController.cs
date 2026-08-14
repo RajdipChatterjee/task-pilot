@@ -39,7 +39,7 @@ public class ProjectController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}", Name = "GetProjectById")]
     public async Task<ActionResult<ApiResponse<ProjectDetailsDto>>> GetAsync(string id)
     {
         try
@@ -74,7 +74,7 @@ public class ProjectController : ControllerBase
                 return Unauthorized(new ApiResponse<ProjectDetailsDto>(false, null, "User not authenticated"));
 
             var response = await _projectService.CreateAsync(dto, userId);
-            return CreatedAtAction(nameof(GetAsync), new { id = response.Id }, new ApiResponse<ProjectDetailsDto>(true, response, null));
+            return CreatedAtRoute("GetProjectById", new { id = response.Id }, new ApiResponse<ProjectDetailsDto>(true, response, null));
         }
         catch (Exception ex)
         {
