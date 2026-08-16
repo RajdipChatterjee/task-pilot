@@ -99,7 +99,6 @@ public class AuthService : IAuthService
 
         var user = new User
         {
-            Id = Guid.NewGuid().ToString(),
             Username = dto.Username,
             Email = dto.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)

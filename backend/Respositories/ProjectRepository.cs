@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using TaskPilot.Api.Configurations;
+using TaskPilot.Api.DTOs.Project;
 using TaskPilot.Api.Interfaces;
 using TaskPilot.Api.Models;
 
@@ -23,15 +25,74 @@ public class ProjectRepository : IProjectRepository
         await _projects.InsertOneAsync(project);
         return project;
     }
-    public async Task<Project?> GetByIdAsync(string id)
+    public async Task<ProjectDetailsDto?> GetByIdAsync(string id)
     {
-        var project = await _projects.Find(project => id == project.Id).FirstOrDefaultAsync();
+        //var project = await _projects.Find(project => id == project.Id).FirstOrDefaultAsync();
+
+        var pipeline = new[]
+        {
+            new BsonDocument("$match", new BsonDocument("_id", id)),
+            new BsonDocument("$lookup",
+                new BsonDocument
+                {
+                    {"from", "Todos" },
+                    {"localField", "_id" },
+                    {"foreignField", "projectId" },
+                    {"as", "tasks" }
+                }
+            ),
+            new BsonDocument("$project",
+                new BsonDocument
+                {
+                    {"_id", 1 },
+                    {"name", 1 },
+                    {"description", 1 },
+                    {"taskCount", new BsonDocument("$size", "$tasks") },
+                    {"createdAt", 1 }
+                }
+            )
+        };
+
+        var project = await _projects.Aggregate<ProjectDetailsDto>(pipeline).FirstOrDefaultAsync();
 
         return project;
     }
-    public async Task<List<Project>> GetByUserIdAsync(string userId)
+    public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId)
     {
-        var projects = await _projects.Find(project => project.CreatedBy == userId).ToListAsync();
+        //var projects = await _projects.Find(project => project.CreatedBy == userId).ToListAsync();
+
+        //var pipeline = new[]
+        //{
+        //    //new BsonDocument { "$match", new BsonDocument { , } },
+        //};
+
+        var pipeline = new[]
+        {
+            new BsonDocument("$match", new BsonDocument("createdBy", userId)),
+
+            new BsonDocument("$lookup",
+                new BsonDocument
+                {
+                    {"from", "Todos" },
+                    {"localField", "_id" },
+                    {"foreignField", "projectId" },
+                    {"as", "tasks" }
+                }
+            ),
+
+            new BsonDocument("$project", 
+                new BsonDocument
+                {
+                    {"_id", 1 },
+                    {"name", 1 },
+                    {"description", 1 },
+                    {"taskCount", new BsonDocument("$size", "$tasks") },
+                    {"createdAt", 1 }
+                }
+            )
+        };
+
+        var projects = await _projects.Aggregate<ProjectDetailsDto>(pipeline).ToListAsync();
 
         return projects;
     }
@@ -50,7 +111,7 @@ public class ProjectRepository : IProjectRepository
             .Set(p => p.Description, project.Description)
             .Set(p => p.UpdatedAt, DateTime.UtcNow);
 
-        await _projects.UpdateOneAsync(filter, update);
+        await _projects.UpdateOneAsync(filter, update); 
     }
 
 }

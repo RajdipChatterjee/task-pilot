@@ -39,16 +39,14 @@ public class ProjectService : IProjectService
         if (project.CreatedBy != userId)
             return null;
 
-        return MapToDto(project);
+        return project;
     }
 
     public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId)
     {
         var projects = await _projectRepository.GetByUserIdAsync(userId);
 
-        return projects
-            .Select(MapToDto)
-            .ToList();
+        return projects;
     }
 
     public async Task UpdateAsync(string id, UpdateProjectDto dto, string userId)
@@ -62,11 +60,9 @@ public class ProjectService : IProjectService
             throw new UnauthorizedAccessException(
                 "You do not have access to this project.");
 
-        project.Name = dto.Name;
-        project.Description = dto.Description;
-        project.UpdatedAt = DateTime.UtcNow;
+        var pr = DtoToModel(project);
 
-        await _projectRepository.UpdateAsync(project);
+        await _projectRepository.UpdateAsync(pr);
     }
 
     public async Task DeleteAsync(string id, string userId)
@@ -93,7 +89,20 @@ public class ProjectService : IProjectService
             CreatedAt = project.CreatedAt,
 
             // For now. Aggregation will eventually calculate this.
-            Tasks = 0
+            TaskCount = 0
+        };
+    }
+
+    private static Project DtoToModel(ProjectDetailsDto dto)
+    {
+        return new Project
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+            Description = dto.Description,
+            CreatedAt = dto.CreatedAt,
+            CreatedBy = dto.CreatedBy,
+            UpdatedAt = DateTime.UtcNow
         };
     }
 }
