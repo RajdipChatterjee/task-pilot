@@ -31,7 +31,7 @@ public class ProjectRepository : IProjectRepository
 
         var pipeline = new[]
         {
-            new BsonDocument("$match", new BsonDocument("_id", id)),
+            new BsonDocument("$match", new BsonDocument("_id", ObjectId.Parse(id))),
             new BsonDocument("$lookup",
                 new BsonDocument
                 {
@@ -47,6 +47,7 @@ public class ProjectRepository : IProjectRepository
                     {"_id", 1 },
                     {"name", 1 },
                     {"description", 1 },
+                    {"createdBy", 1},
                     {"taskCount", new BsonDocument("$size", "$tasks") },
                     {"createdAt", 1 }
                 }
@@ -68,7 +69,7 @@ public class ProjectRepository : IProjectRepository
 
         var pipeline = new[]
         {
-            new BsonDocument("$match", new BsonDocument("createdBy", userId)),
+            new BsonDocument("$match", new BsonDocument("createdBy", ObjectId.Parse(userId))),
 
             new BsonDocument("$lookup",
                 new BsonDocument
@@ -86,6 +87,7 @@ public class ProjectRepository : IProjectRepository
                     {"_id", 1 },
                     {"name", 1 },
                     {"description", 1 },
+                    {"createdBy", 1 },
                     {"taskCount", new BsonDocument("$size", "$tasks") },
                     {"createdAt", 1 }
                 }

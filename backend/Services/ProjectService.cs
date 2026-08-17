@@ -86,9 +86,8 @@ public class ProjectService : IProjectService
             Id = project.Id,
             Name = project.Name,
             Description = project.Description,
+            CreatedBy = project.CreatedBy,
             CreatedAt = project.CreatedAt,
-
-            // For now. Aggregation will eventually calculate this.
             TaskCount = 0
         };
     }
