@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Options;
-using TaskPilot.Api.Models;
-using TaskPilot.Api.Configurations;
-using TaskPilot.Api.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using TaskPilot.Api.Configurations;
+using TaskPilot.Api.DTOs.Common;
+using TaskPilot.Api.DTOs.Todo;
+using TaskPilot.Api.Interfaces;
+using TaskPilot.Api.Models;
 
 namespace TaskPilot.Api.Repositories;
 
@@ -17,9 +20,81 @@ public class TodoRepository : ITodoRepository
         _todos = mongoDatabase.GetCollection<Todo>(options.Value.TodoCollection);
     }
 
-    public async Task<List<Todo>> GetAllAsync(string projectId)
+    public async Task<PagedResult<TodoResponseDto>> GetAllAsync(
+        string projectId,
+        int pageNumber,
+        int pageSize,
+        int? month,
+        int? year)
     {
-        return await _todos.Find(t => t.ProjectId == projectId).ToListAsync();
+        var match = new BsonDocument
+    {
+        { "projectId", ObjectId.Parse(projectId) }
+    };
+
+        if (month.HasValue && year.HasValue)
+        {
+            var startDate = new DateTime(year.Value, month.Value, 1);
+            var endDate = startDate.AddMonths(1);
+
+            match.Add("taskDate", new BsonDocument
+        {
+            { "$gte", startDate },
+            { "$lt", endDate }
+        });
+        }
+
+        var pipeline = new[]
+        {
+        new BsonDocument("$match", match),
+
+        new BsonDocument("$facet", new BsonDocument
+        {
+            {
+                "items", new BsonArray
+                {
+                    new BsonDocument("$sort",
+                        new BsonDocument("taskDate", -1)),
+
+                    new BsonDocument("$skip",
+                        (pageNumber - 1) * pageSize),
+
+                    new BsonDocument("$limit", pageSize)
+                }
+            },
+            {
+                "metadata", new BsonArray
+                {
+                    new BsonDocument("$count", "totalItems")
+                }
+            }
+        })
+    };
+
+        var result = await _todos
+            .Aggregate<BsonDocument>(pipeline)
+            .FirstOrDefaultAsync();
+
+        var items = result["items"]
+            .AsBsonArray
+            .Select(x => MongoDB.Bson.Serialization.BsonSerializer
+                .Deserialize<TodoResponseDto>(x.AsBsonDocument))
+            .ToList();
+
+        var totalItems = result["metadata"]
+            .AsBsonArray
+            .FirstOrDefault()?["totalItems"]
+            .AsInt32 ?? 0;
+
+        return new PagedResult<TodoResponseDto>
+        {
+            Items = items,
+            TotalItems = totalItems,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling(
+                (double)totalItems / pageSize)
+        };
     }
 
     public async Task<Todo> GetByIdAsync(string id)

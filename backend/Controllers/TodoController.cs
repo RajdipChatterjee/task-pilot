@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TaskPilot.Api.Common;
+using TaskPilot.Api.DTOs.Common;
 using TaskPilot.Api.DTOs.Todo;
 using TaskPilot.Api.Interfaces;
 
@@ -29,10 +30,15 @@ public class TodoController : ControllerBase
     //}
 
     [HttpGet("{projectId}/tasks")]
-    public async Task<ActionResult<ApiResponse<List<TodoResponseDto>>>> GetAll(string projectId)
+    public async Task<ActionResult<ApiResponse<PagedResult<TodoResponseDto>>>> GetAll(string projectId, 
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] int? month = null,
+        [FromQuery] int? year = null)
     {
-        var tasks = await _service.GetAllAsync(projectId);
-        return Ok(new ApiResponse<List<TodoResponseDto>>(true, tasks, "All todos retrieved successfully.", null));
+        var tasks = await _service.GetAllAsync(projectId, pageNumber, pageSize, month, year);
+
+        return Ok(new ApiResponse<PagedResult<TodoResponseDto>>(true, tasks, "All todos retrieved successfully.", null));
     }
 
     [HttpGet("{projectId}/tasks/{taskId}")]

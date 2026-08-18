@@ -1,10 +1,11 @@
-﻿using TaskPilot.Api.DTOs.Todo;
+﻿using TaskPilot.Api.DTOs.Common;
+using TaskPilot.Api.DTOs.Todo;
 
 namespace TaskPilot.Api.Interfaces
 {
     public interface ITodoService
     {
-        Task<List<TodoResponseDto>> GetAllAsync(string projectId);
+        Task<PagedResult<TodoResponseDto>> GetAllAsync(string projectId, int pageNumber, int pageSize, int? month, int? year);
 
         Task<TodoResponseDto?> GetByIdAsync(string id);
 

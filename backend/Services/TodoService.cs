@@ -1,3 +1,4 @@
+using TaskPilot.Api.DTOs.Common;
 using TaskPilot.Api.DTOs.Todo;
 using TaskPilot.Api.Interfaces;
 using TaskPilot.Api.Models;
@@ -13,21 +14,39 @@ public class TodoService : ITodoService
         _repository = repository;
     }
 
-    public async Task<List<TodoResponseDto>> GetAllAsync(string projectId)
+    public async Task<PagedResult<TodoResponseDto>> GetAllAsync(
+    string projectId,
+    int pageNumber,
+    int pageSize,
+    int? month,
+    int? year)
     {
-        var todos = await _repository.GetAllAsync(projectId);
+        var result = await _repository.GetAllAsync(
+            projectId,
+            pageNumber,
+            pageSize,
+            month,
+            year);
 
-        return todos.Select(t => new TodoResponseDto
+        return new PagedResult<TodoResponseDto>
         {
-            Id = t.Id,
-            ProjectId = t.ProjectId,
-            Title = t.Title,
-            Description = t.Description,
-            Status = t.Status,
-            TaskDate = t.TaskDate,
-            CreatedAt = t.CreatedAt,
-            UpdatedAt = t.UpdatedAt
-        }).ToList();
+            Items = result.Items.Select(t => new TodoResponseDto
+            {
+                Id = t.Id,
+                ProjectId = t.ProjectId,
+                Title = t.Title,
+                Description = t.Description,
+                Status = t.Status,
+                TaskDate = t.TaskDate,
+                CreatedAt = t.CreatedAt,
+                UpdatedAt = t.UpdatedAt
+            }).ToList(),
+
+            TotalItems = result.TotalItems,
+            PageNumber = result.PageNumber,
+            PageSize = result.PageSize,
+            TotalPages = result.TotalPages
+        };
     }
 
     public async Task<TodoResponseDto?> GetByIdAsync(string id)

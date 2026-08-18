@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Bson.Serialization;
 using TaskPilot.Api.Configurations;
 using TaskPilot.Api.DTOs.Common;
 using TaskPilot.Api.DTOs.Project;
@@ -154,7 +155,7 @@ public class ProjectRepository : IProjectRepository
 
         var items = result["items"]
             .AsBsonArray
-            .Select(x => MongoDB.Bson.Serialization.BsonSerializer.Deserialize<ProjectDetailsDto>(x.AsBsonDocument))
+            .Select(x => BsonSerializer.Deserialize<ProjectDetailsDto>(x.AsBsonDocument))
             .ToList();
 
         var totalItems = result["metadata"]
