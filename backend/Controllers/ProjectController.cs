@@ -19,17 +19,17 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<List<ProjectDetailsDto>?>>> GetAllAsync()
+    public async Task<ActionResult<ApiResponse<List<ProjectDetailsDto>>>> GetAllAsync([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? month = null, [FromQuery] int? year = null)
     {
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userId == null)
-                return Unauthorized(new ApiResponse<List<ProjectDetailsDto>?>(
+                return Unauthorized(new ApiResponse<List<ProjectDetailsDto>>(
                     false, null, "User not authenticated"));
 
-            var response = await _projectService.GetByUserIdAsync(userId);
+            var response = await _projectService.GetByUserIdAsync(userId, pageNumber, pageSize, month, year);
 
             return Ok(new ApiResponse<List<ProjectDetailsDto>?>(true, response, null));
         }

@@ -42,9 +42,9 @@ public class ProjectService : IProjectService
         return project;
     }
 
-    public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId)
+    public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId, int pageNumber, int pageSize, int? month, int? year)
     {
-        var projects = await _projectRepository.GetByUserIdAsync(userId);
+        var projects = await _projectRepository.GetByUserIdAsync(userId, pageNumber, pageSize, month, year);
 
         return projects;
     }

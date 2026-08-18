@@ -6,7 +6,7 @@ public interface IProjectRepository
 {
     Task<Project> CreateAsync(Project project);
     Task<ProjectDetailsDto?> GetByIdAsync(string id);
-    Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId);
-    Task UpdateAsync(Project project);
+    Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId, int pageNumber, int pageSize, int? month, int? year);
+    Task UpdateAsync(Project project);  
     Task DeleteAsync(string id);
-}
+}   

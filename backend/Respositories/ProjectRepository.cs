@@ -74,13 +74,31 @@ public class ProjectRepository : IProjectRepository
 
         return project;
     }
-    public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId)
+    public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId, int pageNumber, int pageSize, int? month, int? year)
     {
         //var projects = await _projects.Find(project => project.CreatedBy == userId).ToListAsync();
 
+        var match = new BsonDocument {
+            { "createdBy", ObjectId.Parse(userId) }
+        };
+
+        if (month.HasValue && year.HasValue)
+        {
+            var startDate = new DateTime(year.Value, month.Value, 1);
+            var endDate = startDate.AddMonths(1);
+
+            match.Add( "createdAt", new BsonDocument
+            {
+                { "$gte", startDate },
+                { "$lt", endDate }
+            });
+        }
+
         var pipeline = new[]
         {
-            new BsonDocument("$match", new BsonDocument("createdBy", ObjectId.Parse(userId))),
+            //new BsonDocument("$match", new BsonDocument("createdBy", ObjectId.Parse(userId))),
+
+            new BsonDocument("$match", match),
 
             new BsonDocument("$lookup",
                 new BsonDocument
@@ -118,7 +136,11 @@ public class ProjectRepository : IProjectRepository
                     )},
                     {"createdAt", 1 }
                 }
-            )
+            ),
+
+            new BsonDocument("$sort", new BsonDocument("createdAt", -1)),
+            new BsonDocument("$skip", (pageNumber - 1) * pageSize),
+            new BsonDocument("$limit", pageSize),
         };
 
         var projects = await _projects.Aggregate<ProjectDetailsDto>(pipeline).ToListAsync();
