@@ -49,56 +49,22 @@ public class ProjectRepository : IProjectRepository
                     {"description", 1 },
                     {"createdBy", 1},
                     {"taskCount", new BsonDocument("$size", "$tasks") },
-                    {
-                    "completedTaskCount",
-                    new BsonDocument(
-                        "$size",
-                        new BsonDocument(
-                            "$filter",
-                            new BsonDocument
+                    {"completedTaskCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
                             {
                                 { "input", "$tasks" },
                                 { "as", "task" },
-                                {
-                                    "cond",
-                                    new BsonDocument(
-                                        "$eq",
-                                        new BsonArray
-                                        {
-                                            "$$task.status",
-                                            1
-                                        }
-                                    )
-                                }
+                                {"cond", new BsonDocument("$eq", new BsonArray{"$$task.status", 1})}
                             }
                         )
-                    )
-                },
-                    {
-                    "pendingTaskCount",
-                    new BsonDocument(
-                        "$size",
-                        new BsonDocument(
-                            "$filter",
-                            new BsonDocument
+                    )},
+                    {"pendingTaskCount",new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
                             {
                                 { "input", "$tasks" },
                                 { "as", "task" },
-                                {
-                                    "cond",
-                                    new BsonDocument(
-                                        "$eq",
-                                        new BsonArray
-                                        {
-                                            "$$task.status",
-                                            0
-                                        }
-                                    )
-                                }
+                                { "cond", new BsonDocument("$eq", new BsonArray {"$$task.status", 0}) }
                             }
                         )
-                    )
-                },
+                    )},
                     {"createdAt", 1 }
                 }
             )
@@ -111,11 +77,6 @@ public class ProjectRepository : IProjectRepository
     public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId)
     {
         //var projects = await _projects.Find(project => project.CreatedBy == userId).ToListAsync();
-
-        //var pipeline = new[]
-        //{
-        //    //new BsonDocument { "$match", new BsonDocument { , } },
-        //};
 
         var pipeline = new[]
         {
@@ -139,56 +100,22 @@ public class ProjectRepository : IProjectRepository
                     {"description", 1 },
                     {"createdBy", 1 },
                     {"taskCount", new BsonDocument("$size", "$tasks") },
-                    {
-                    "completedTaskCount",
-                    new BsonDocument(
-                        "$size",
-                        new BsonDocument(
-                            "$filter",
-                            new BsonDocument
+                    {"completedTaskCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
                             {
                                 { "input", "$tasks" },
                                 { "as", "task" },
-                                {
-                                    "cond",
-                                    new BsonDocument(
-                                        "$eq",
-                                        new BsonArray
-                                        {
-                                            "$$task.status",
-                                            1
-                                        }
-                                    )
-                                }
+                                {"cond", new BsonDocument("$eq", new BsonArray{"$$task.status", 1})}
                             }
                         )
-                    )
-                },
-                    {
-                    "pendingTaskCount",
-                    new BsonDocument(
-                        "$size",
-                        new BsonDocument(
-                            "$filter",
-                            new BsonDocument
+                    )},
+                    {"pendingTaskCount",new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument
                             {
                                 { "input", "$tasks" },
                                 { "as", "task" },
-                                {
-                                    "cond",
-                                    new BsonDocument(
-                                        "$eq",
-                                        new BsonArray
-                                        {
-                                            "$$task.status",
-                                            0
-                                        }
-                                    )
-                                }
+                                { "cond", new BsonDocument("$eq", new BsonArray {"$$task.status", 0}) }
                             }
                         )
-                    )
-                },
+                    )},
                     {"createdAt", 1 }
                 }
             )
