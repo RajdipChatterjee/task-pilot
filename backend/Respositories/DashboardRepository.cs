@@ -94,13 +94,65 @@ public class DashboardRepository : IDashboardRepository
                             }),
                             new BsonDocument("$set", new BsonDocument{
                                 { "taskCount", new BsonDocument("$size", "$tasks") },
-                                { "$completedTaskCount", new BsonDocument("$size", new BsonDocument("$filter", new BsonDocument{}))
-                                }
+                                { "completedTaskCount", new BsonDocument(
+                                    "$size", new BsonDocument(
+                                        "$filter", new BsonDocument{
+                                            {"input", "$tasks"},
+                                            {"as", "task"},
+                                            {"cond", new BsonDocument("$eq", new BsonArray { "$$task.status", 1 })}
+                                        }
+                                    )
+                                )},
+                                { "pendingTaskCount", new BsonDocument(
+                                    "$size", new BsonDocument(
+                                        "$filter", new BsonDocument{
+                                            {"input", "$tasks"},
+                                            {"as", "task"},
+                                            {"cond", new BsonDocument("$eq", new BsonArray { "$$task.status", 0 })}
+                                        }
+                                    )
+                                )}
                             }),
+                            new BsonDocument("$project", new BsonDocument
+                            {
+                                { "_id", 1 },
+                                { "name", 1 },
+                                { "description", 1 },
+                                { "createdBy", 1 },
+                                { "createdAt", 1 },
+                                { "taskCount", 1 },
+                                { "completedTaskCount", 1 },
+                                { "pendingTaskCount", 1 }
+                            }),
+                            new BsonDocument("$sort", new BsonDocument("createdAt", -1))
                         }
                     },
                     {"as", "projects" }
-                })
+                }),
+            new BsonDocument("$project", new BsonDocument
+            {
+                {"_id", 0},
+                {"TotalProjects", new BsonDocument("$size", "$projects") },
+                {"TotalTasks", new BsonDocument("$sum", new BsonDocument("$map", new BsonDocument
+                {
+                    { "input", "$projects" },
+                    { "as", "project" },
+                    { "in", "$$project.taskCount" }
+                }))},
+                {"TotalCompletedTasks", new BsonDocument("$sum", new BsonDocument("$map", new BsonDocument
+                {
+                    { "input", "$projects" },
+                    { "as", "project" },
+                    { "in", "$$project.completedTaskCount" }
+                }))},
+                {"TotalPendingTasks", new BsonDocument("$sum", new BsonDocument("$map", new BsonDocument
+                {
+                    { "input", "$projects" },
+                    { "as", "project" },
+                    { "in", "$$project.pendingTaskCount" }
+                }))},
+                {"RecentProjects", new BsonDocument("$slice", new BsonArray{"$projects", 3})}
+            })
         };
 
         var data = await _users.Aggregate<DashboardDto>(pipeline).FirstOrDefaultAsync();

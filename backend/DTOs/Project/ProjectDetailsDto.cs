@@ -18,6 +18,12 @@ public class ProjectDetailsDto
     [BsonElement("taskCount")]
     public int TaskCount { get; set; }
 
+    [BsonElement("completedTaskCount")]
+    public int CompletedTaskCount { get; set; }
+
+    [BsonElement("pendingTaskCount")]
+    public int PendingTaskCount { get; set; }
+
     [BsonElement("createdBy")]
     [BsonRepresentation(BsonType.ObjectId)]
     public string CreatedBy { get; set; } = null!;
