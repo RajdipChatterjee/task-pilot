@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using TaskPilot.Api.Configurations;
+using TaskPilot.Api.DTOs.Common;
 using TaskPilot.Api.DTOs.Project;
 using TaskPilot.Api.Interfaces;
 using TaskPilot.Api.Models;
@@ -74,7 +75,7 @@ public class ProjectRepository : IProjectRepository
 
         return project;
     }
-    public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId, int pageNumber, int pageSize, int? month, int? year)
+    public async Task<PagedResult<ProjectDetailsDto>> GetByUserIdAsync(string userId, int pageNumber, int pageSize, int? month, int? year)
     {
         //var projects = await _projects.Find(project => project.CreatedBy == userId).ToListAsync();
 
@@ -138,14 +139,38 @@ public class ProjectRepository : IProjectRepository
                 }
             ),
 
-            new BsonDocument("$sort", new BsonDocument("createdAt", -1)),
-            new BsonDocument("$skip", (pageNumber - 1) * pageSize),
-            new BsonDocument("$limit", pageSize),
+            new BsonDocument("$facet", new BsonDocument {
+                {
+                    "items", new BsonArray { 
+                        new BsonDocument("$sort", new BsonDocument("createdAt", -1)),
+                        new BsonDocument("$skip", (pageNumber - 1) * pageSize),
+                        new BsonDocument("$limit", pageSize)
+                    }
+                },
+                {"metadata", new BsonArray { new BsonDocument("$count", "totalItems")}}
+        })};
+
+        var result = await _projects.Aggregate<BsonDocument>(pipeline).FirstOrDefaultAsync();
+
+        var items = result["items"]
+            .AsBsonArray
+            .Select(x => MongoDB.Bson.Serialization.BsonSerializer.Deserialize<ProjectDetailsDto>(x.AsBsonDocument))
+            .ToList();
+
+        var totalItems = result["metadata"]
+            .AsBsonArray
+            .FirstOrDefault()?["totalItems"]
+            .AsInt32 ?? 0;
+
+        return new PagedResult<ProjectDetailsDto>
+        {
+            Items = items,
+            TotalItems = totalItems,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling(
+                (double)totalItems / pageSize)
         };
-
-        var projects = await _projects.Aggregate<ProjectDetailsDto>(pipeline).ToListAsync();
-
-        return projects;
     }
 
     public async Task DeleteAsync(string id)

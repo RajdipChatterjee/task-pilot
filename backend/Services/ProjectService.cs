@@ -1,4 +1,5 @@
-﻿using TaskPilot.Api.DTOs.Project;
+﻿using TaskPilot.Api.DTOs.Common;
+using TaskPilot.Api.DTOs.Project;
 using TaskPilot.Api.Interfaces;
 using TaskPilot.Api.Models;
 
@@ -42,7 +43,7 @@ public class ProjectService : IProjectService
         return project;
     }
 
-    public async Task<List<ProjectDetailsDto>> GetByUserIdAsync(string userId, int pageNumber, int pageSize, int? month, int? year)
+    public async Task<PagedResult<ProjectDetailsDto>> GetByUserIdAsync(string userId, int pageNumber, int pageSize, int? month, int? year)
     {
         var projects = await _projectRepository.GetByUserIdAsync(userId, pageNumber, pageSize, month, year);
 

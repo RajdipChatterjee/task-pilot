@@ -4,6 +4,7 @@ using TaskPilot.Api.DTOs.Project;
 using TaskPilot.Api.Interfaces;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using TaskPilot.Api.DTOs.Common;
 
 namespace TaskPilot.Api.Controllers;
 
@@ -19,23 +20,23 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<List<ProjectDetailsDto>>>> GetAllAsync([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? month = null, [FromQuery] int? year = null)
+    public async Task<ActionResult<ApiResponse<PagedResult<ProjectDetailsDto>>>> GetAllAsync([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] int? month = null, [FromQuery] int? year = null)
     {
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userId == null)
-                return Unauthorized(new ApiResponse<List<ProjectDetailsDto>>(
+                return Unauthorized(new ApiResponse<PagedResult<ProjectDetailsDto>>(
                     false, null, "User not authenticated"));
 
             var response = await _projectService.GetByUserIdAsync(userId, pageNumber, pageSize, month, year);
 
-            return Ok(new ApiResponse<List<ProjectDetailsDto>?>(true, response, null));
+            return Ok(new ApiResponse<PagedResult<ProjectDetailsDto>?>(true, response, null));
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ApiResponse<List<ProjectDetailsDto>?>(false, null, ex.Message));
+            return StatusCode(500, new ApiResponse<PagedResult<ProjectDetailsDto>?>(false, null, ex.Message));
         }
     }
 
